@@ -1,0 +1,130 @@
+ASBR#sh run
+Building configuration...
+
+Current configuration : 1794 bytes
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+!
+hostname ASBR
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+no ip icmp rate-limit unreachable
+!
+!
+!
+ip dhcp excluded-address 192.168.10.1
+!
+ip dhcp pool VLAN10_LAN
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8
+!
+!
+!
+ip domain name course.lab
+ip cef
+no ipv6 cef
+!
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ ip address 192.168.122.10 255.255.255.0
+ duplex full
+!
+interface GigabitEthernet1/0
+ ip address 209.85.100.2 255.255.255.252
+ ip nat outside
+ negotiation auto
+!
+interface GigabitEthernet2/0
+ ip address 10.0.1.1 255.255.255.252
+ ip nat inside
+ negotiation auto
+!
+interface GigabitEthernet3/0
+ ip address 10.0.2.1 255.255.255.252
+ ip nat inside
+ negotiation auto
+!
+interface GigabitEthernet4/0
+ ip address dhcp
+ negotiation auto
+!
+router ospf 1
+ router-id 1.1.1.1
+ network 10.0.1.0 0.0.0.3 area 0
+ network 10.0.1.0 0.0.0.255 area 0
+ network 10.0.2.0 0.0.0.3 area 0
+ network 10.0.2.0 0.0.0.255 area 0
+ default-information originate always
+!
+router bgp 65001
+ bgp router-id 1.1.1.1
+ bgp log-neighbor-changes
+ neighbor 209.85.100.1 remote-as 65002
+!
+ip nat inside source list 1 interface GigabitEthernet1/0 overload
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 209.85.100.1
+!
+access-list 1 permit 10.0.0.0 0.255.255.255
+access-list 1 permit 192.168.0.0 0.0.255.255
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login local
+ transport input ssh
+!
+!
+end
+
+ASBR#
+*May  4 16:16:06.935: %BGP-5-ADJCHANGE: neighbor 209.85.100.1 Up
+ASBR#
